@@ -11,12 +11,16 @@ pub struct EyeDataset {
 
 impl EyeDataset {
     pub fn train() -> Self {
-        let items = get_items(true);
+        let items = get_items("train");
         Self { items }
     }
 
     pub fn test() -> Self {
-        let items = get_items(false);
+        let items = get_items("test");
+        Self { items }
+    }
+    pub fn val() -> Self {
+        let items = get_items("val");
         Self { items }
     }
 }
@@ -89,15 +93,9 @@ impl<B: Backend> Batcher<B, EyeItem, EyeBatch<B>> for EyeBatcher {
     }
 }
 
-pub fn get_items(is_training_data: bool) -> Vec<EyeItem> {
-    let type_path = if is_training_data {
-        "Dataset/train"
-    } else {
-        "Dataset/test"
-    };
-
-    let label_path = format!("{}/labels", type_path);
-    let image_path = format!("{}/images", type_path);
+pub fn get_items(data_type: &str) -> Vec<EyeItem> {
+    let label_path = format!("Dataset/{}/labels", data_type);
+    let image_path = format!("Dataset/{}/images", data_type);
 
     let mut items = Vec::new();
 
