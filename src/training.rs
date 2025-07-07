@@ -1,4 +1,7 @@
-use crate::model::{Model, ModelConfig};
+use crate::{
+    data::{EyeBatch, EyeBatcher, EyeDataset},
+    model::{Model, ModelConfig},
+};
 use burn::{
     data::dataloader::DataLoaderBuilder,
     nn::loss::{MseLoss, Reduction::Mean},
@@ -11,8 +14,6 @@ use burn::{
         metric::{AccuracyMetric, LossMetric},
     },
 };
-
-use crate::data::{EyeBatch, EyeBatcher, EyeDataset};
 
 impl<B: Backend> Model<B> {
     pub fn forward_regression(

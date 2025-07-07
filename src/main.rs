@@ -6,6 +6,7 @@ mod inference;
 mod model;
 mod training;
 mod utils;
+
 use crate::{model::ModelConfig, training::TrainingConfig};
 use burn::{
     backend::{Autodiff, Cuda},
