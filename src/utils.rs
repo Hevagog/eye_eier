@@ -73,22 +73,33 @@ pub fn eye_item_to_image(item: &EyeItem) -> Option<image::DynamicImage> {
     Some(DynamicImage::ImageRgb8(buf))
 }
 
-pub fn draw_label(item: &EyeItem) -> Option<DynamicImage> {
-    let dyn_img = eye_item_to_image(item)?;
-    let mut img = dyn_img.to_rgba8();
-
-    // YOLO label: center x,y and width,height in normalized [0,1]
-    let [xc, yc, w, h] = item.label;
+fn draw_bbox_on_image(
+    img: &ImageBuffer<Rgba<u8>, Vec<u8>>,
+    bbox: [f32; 4],
+    color: Rgba<u8>,
+) -> ImageBuffer<Rgba<u8>, Vec<u8>> {
+    let [xc, yc, w, h] = bbox;
     let img_w = img.width() as f32;
     let img_h = img.height() as f32;
     let x = ((xc - w / 2.0) * img_w).round() as i32;
     let y = ((yc - h / 2.0) * img_h).round() as i32;
     let rw: u32 = (w * img_w).round() as u32;
     let rh = (h * img_h).round() as u32;
-
     let rect = Rect::at(x, y).of_size(rw, rh);
-    let im2: ImageBuffer<Rgba<u8>, Vec<u8>> =
-        draw_hollow_rect(&mut img, rect, Rgba([255, 0, 0, 255]));
+    draw_hollow_rect(img, rect, color)
+}
 
-    Some(DynamicImage::ImageRgba8(im2))
+pub fn draw_label(item: &EyeItem) -> Option<DynamicImage> {
+    let dyn_img = eye_item_to_image(item)?;
+    let img = dyn_img.to_rgba8();
+    let img = draw_bbox_on_image(&img, item.label, Rgba([255, 0, 0, 255]));
+    Some(DynamicImage::ImageRgba8(img))
+}
+
+pub fn draw_predicted_label(item: &EyeItem, bbox: [f32; 4]) -> Option<DynamicImage> {
+    let dyn_img = eye_item_to_image(item)?;
+    let img = dyn_img.to_rgba8();
+    let img = draw_bbox_on_image(&img, bbox, Rgba([255, 255, 0, 255]));
+    let img = draw_bbox_on_image(&img, item.label, Rgba([0, 255, 0, 255]));
+    Some(DynamicImage::ImageRgba8(img))
 }
